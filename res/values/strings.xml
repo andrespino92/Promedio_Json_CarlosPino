@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Calculador de Promedio</string>
+    <string name="inicio">Inicio</string>
+    <string name="materias">Materias</string>
+    <string name="promedio">Promedio</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="restaurar">Restaurar Todo</string>
+    
+    <string name="titulomateria">Lista de Todas Tus Materias</string>
+    <string name="addmateria">Agregar Materia</string>
+    <string name="credimat">Creditos</string>
+    <string name="eva">Evaluación: </string>
+    <string name="peso">Procentaje: </string>
+    <string name="agregar">Agregar</string>
+    <string name="porc">Porcentaje Total: </string>
+    <string name="nota">Nota: </string>
+    <string name="notass">Digite Nota</string>
+    <string name="addnota">Agregar Nota</string>
+    <string name="txtlogro">Digite el Promedio Deseado en la Materia</string>
+    <string name="logronota">Promedio Deseado</string>
+    <string name="btnlogrocalu">Calcular</string>
+    
+    <string name="titulopromedio">Simulador de Promedio Semestral</string>
+    <string name="crecursados">Creditos Cursados:</string>
+    <string name="promactual">Promedio Acumulado Actual:</string>
+    <string name="promdeseado">Promedio Acumulado Deseado:</string>
+    <string name="calpromedio">Calcular Promedio</string>
+    
+    <string name="tituloinicio">¿Necesitas llevar control de tus materias en el semestre?</string>
+    <string name="mensaje">!Te Tenemos la Solución¡</string>
+    <string name="mensaje1">!Te Tenemos la Solución¡</string>
+    
+    <string name="notaeva">Evaluación</string>
+    <string name="notapeso">Porcentaje</string>
+    <string name="notanota">Nota</string>
+    <string name="totalmateria">Nota Acumulada:</string>
+    <string name="totalnota"></string>
+
+</resources>

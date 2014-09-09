@@ -44,8 +44,8 @@ public class info_materia extends Fragment
     private final String BD_TABLA_INFO  = "infomateria";
     private SQLiteDatabase myDB = null;
     public String id_materia;
-    Button addevaluacion,addnota;
-    EditText txtevaluacion,txtpeso,txtnota;
+    Button addevaluacion,addnota,btnlogrocalcular;
+    EditText txtevaluacion,txtpeso,txtnota,txtlogronota,txtpromediototal;
     TextView txtporce,totalnota;
     public String evalua;
     public int peso;
@@ -75,14 +75,14 @@ public class info_materia extends Fragment
 		tabcontent = (TabHost) rootView.findViewById(android.R.id.tabhost);
 		tabcontent.setup();
 		
-		pestaña = tabcontent.newTabSpec("Evaluacion");
+		pestaña = tabcontent.newTabSpec("Cortes");
 		pestaña.setContent(R.id.evaluaciones);
-		pestaña.setIndicator("Evaluacion",getResources().getDrawable(android.R.drawable.ic_btn_speak_now));
+		pestaña.setIndicator("Cortes",getResources().getDrawable(android.R.drawable.ic_btn_speak_now));
 		tabcontent.addTab(pestaña);
 		
-		pestaña = tabcontent.newTabSpec("Add Notas");
+		pestaña = tabcontent.newTabSpec("Nueva Nota");
 		pestaña.setContent(R.id.addnotas);
-		pestaña.setIndicator("Add Notas",getResources().getDrawable(android.R.drawable.ic_delete));
+		pestaña.setIndicator("Nueva Nota",getResources().getDrawable(android.R.drawable.ic_delete));
 		tabcontent.addTab(pestaña);
 		
 		pestaña = tabcontent.newTabSpec("Logros");
@@ -331,6 +331,57 @@ public class info_materia extends Fragment
 		    	}
 		    }
 		});
+		
+		txtlogronota = (EditText)rootView.findViewById(R.id.txtlogronota);
+		txtpromediototal = (EditText)rootView.findViewById(R.id.txtpromediototal);
+		btnlogrocalcular = (Button)rootView.findViewById(R.id.btnlogrocalcular);
+		btnlogrocalcular.setOnClickListener(new OnClickListener() 
+		{
+			@Override
+			public void onClick(View arg0) 
+			{			
+				if(!txtlogronota.getText().toString().equals(""))
+				{
+					double suma = 0.0,sumatotal=0.0,resul=0.0,resultotal=0.0;
+					double promdeseado = Double.parseDouble(txtlogronota.getText().toString());
+					//Inicializamos la base
+			        SQLiteDatabase myDB = null;
+			        //creo la base de datos
+			        myDB = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+			        //ahora creo una tabla
+			        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+			        String[] campos = new String[] {"materia,porcentaje,nota"};
+			        String[] args = {id_materia};
+			        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
+			        while(c.moveToNext())
+			        {	
+					   	int col_peso = c.getColumnIndexOrThrow("porcentaje");
+					   	double peso_dato = (double)c.getInt(col_peso);
+					   	peso_dato = peso_dato/(double)100;
+					   	
+					   	int col_nota = c.getColumnIndexOrThrow("nota");        		
+			        	double nota_dato = c.getDouble(col_nota);
+			        	
+			        	if(nota_dato!=0.0)
+			        	{
+			        		resul = resul+(peso_dato*nota_dato);
+			        		suma = suma+peso_dato;
+			        	}
+			        	else
+			        	{
+			        		sumatotal = sumatotal+peso_dato;
+			        	}			        						   			       
+			        }
+			        resultotal = (promdeseado-resul)/(sumatotal);
+			        txtpromediototal.setText("Necesitas sacar "+resultotal+" en los cortes restantes.");			        
+				}
+				else
+				{
+					Toast.makeText(rootView.getContext(), "Digite Promedio Deseado", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		
 		
 		return rootView;
 	}

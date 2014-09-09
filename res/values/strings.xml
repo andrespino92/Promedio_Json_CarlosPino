@@ -24,9 +24,10 @@
     <string name="btnlogrocalu">Calcular</string>
     
     <string name="titulopromedio">Simulador de Promedio Semestral</string>
-    <string name="crecursados">Creditos Cursados:</string>
+    <string name="crecursados">Creditos Aprobados:</string>
     <string name="promactual">Promedio Acumulado Actual:</string>
-    <string name="promdeseado">Promedio Acumulado Deseado:</string>
+    <string name="creditocursados">Creditos Cursados Actual:</string>
+    <string name="promdeseado">Promedio Deseado:</string>
     <string name="calpromedio">Calcular Promedio</string>
     
     <string name="tituloinicio">¿Necesitas llevar control de tus materias en el semestre?</string>

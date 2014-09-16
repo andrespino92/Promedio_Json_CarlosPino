@@ -1,23 +1,24 @@
 package com.uninorte.promediocalculador;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
+import android.support.v4.app.FragmentTransaction;
+import android.content.DialogInterface;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.text.InputType;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks 
@@ -27,9 +28,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	private CharSequence mTitle;
 	
+	private SQLiteDatabase myDB = null;
 	private final String BD_NOMBRE = "BaseDatosPrueba";
     private final String BD_TABLA  = "materias";
     private final String BD_TABLA_INFO  = "infomateria";
+    public String materia;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -58,12 +61,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			case 1:
 				fragment = new materia();
 				fragmentManager.beginTransaction().replace(R.id.container,PlaceholderFragment.newInstance(position+1)).commit();
-				fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+				fragmentManager.beginTransaction().replace(R.id.container,fragment,"materia").commit();
 				break;
 			case 2:
 				fragment = new promedio();
 				fragmentManager.beginTransaction().replace(R.id.container,PlaceholderFragment.newInstance(position+1)).commit();
-				fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();				
+				fragmentManager.beginTransaction().replace(R.id.container,fragment,"promedio").commit();				
 				break;
 	
 			default:
@@ -118,12 +121,40 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);	        
 	        myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA);
 	        myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_INFO);
+	        reloadFragment("materia");
 			Toast.makeText(this, "Restaurado Todo", Toast.LENGTH_LONG).show();
 			return true;
 		}
+		if(id==R.id.action_materia)
+		{
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    		builder.setTitle("¿Ingrese Materia a Eliminar?");
+    		final EditText input = new EditText(this);
+    		input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
+    		builder.setView(input);
+    		builder.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() 
+    		{ 
+    		    @Override
+    		    public void onClick(DialogInterface dialog, int which) 
+    		    {
+    		    	materia = input.getText().toString();
+    		    	eliminarmateria(materia);    		    	    				
+    		    }
+    		});
+    		builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() 
+    		{
+    		    @Override
+    		    public void onClick(DialogInterface dialog, int which) 
+    		    {
+    		        dialog.cancel();
+    		    }
+    		});
+    		builder.show();			
+		}
 		return super.onOptionsItemSelected(item);
 	}
-
+		
 	public static class PlaceholderFragment extends Fragment 
 	{
 		private static final String ARG_SECTION_NUMBER = "section_number";
@@ -154,5 +185,39 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					ARG_SECTION_NUMBER));
 		}
 	}
+	
+	public void eliminarmateria(String mat)
+	{
+		//Inicializamos la base
+        myDB = null;
+        //creo la base de datos        
+        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);        
+        //ahora creo una tabla
+        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
+      //Comprobamos que la materia no exista en la base de datos
+        String[] campos = new String[] {"materia,creditos"};    
+        String[] args = {mat};
+        Cursor c = myDB.query(BD_TABLA, campos,"materia=?", args, null, null, null);
+        if(c==null || c.getCount()==0)
+        {
+        	Toast.makeText(this, "No Existe Materia", Toast.LENGTH_LONG).show();
+        }
+        else
+        {        
+        	myDB.delete(BD_TABLA, "materia='"+mat+"'", null);
+        	reloadFragment("materia");
+        	Toast.makeText(this, "Materia Eliminada", Toast.LENGTH_LONG).show();
+        }
+	}	
 
+	public void reloadFragment(String tag)
+	{
+	   	// Reload current fragment
+    	Fragment frg = null;
+    	frg = getSupportFragmentManager().findFragmentByTag(tag);
+    	final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    	ft.detach(frg);
+    	ft.attach(frg);
+    	ft.commit();
+	}
 }

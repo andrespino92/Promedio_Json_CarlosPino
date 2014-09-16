@@ -96,7 +96,7 @@ public class materia extends Fragment
 		        args.putString("mat", materias.get(position));
 		        f_info_materia.setArguments(args);
 		        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-				ft.replace(R.id.container, f_info_materia).addToBackStack("f_info_materia").commit();
+				ft.replace(R.id.container, f_info_materia,"info_materia").addToBackStack("f_info_materia").commit();
 		 
 		    }
 		 

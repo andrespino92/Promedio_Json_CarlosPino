@@ -10,6 +10,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -176,6 +179,7 @@ public class info_materia extends Fragment
 				        		txtpeso.setText("");
 				        		txtporce.setText(ActualizarPorcentaje()+"");
 				        		ActualizarNotas();
+				        		reloadFragment("info_materia");
 					            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_LONG).show();
 				        	}
 				        	else
@@ -386,6 +390,17 @@ public class info_materia extends Fragment
 		return rootView;
 	}
 	
+	public void reloadFragment(String tag)
+	{
+	   	// Reload current fragment
+    	Fragment frg = null;
+    	frg = getFragmentManager().findFragmentByTag(tag);
+    	final FragmentTransaction ft = getFragmentManager().beginTransaction();
+    	ft.detach(frg);
+    	ft.attach(frg);
+    	ft.commit();
+	}
+	
 	public void AgregarFilasTabla()
 	{
 		TableRow fila;
@@ -528,7 +543,7 @@ public class info_materia extends Fragment
         		String eval_dato = c.getString(col_eval);
         		evaluaciones.add(eval_dato);    
             }
-        	
+        	eval_notas.setAdapter(adap);
         }
 
 	}

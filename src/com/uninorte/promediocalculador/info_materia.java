@@ -1,5 +1,6 @@
 package com.uninorte.promediocalculador;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
@@ -77,15 +78,16 @@ public class info_materia extends Fragment
 		
 		tabcontent = (TabHost) rootView.findViewById(android.R.id.tabhost);
 		tabcontent.setup();
+				
 		
 		pestaña = tabcontent.newTabSpec("Cortes");
 		pestaña.setContent(R.id.evaluaciones);
-		pestaña.setIndicator("Cortes",getResources().getDrawable(android.R.drawable.ic_btn_speak_now));
-		tabcontent.addTab(pestaña);
+		pestaña.setIndicator("Cortes",getResources().getDrawable(android.R.drawable.ic_btn_speak_now));		
+		tabcontent.addTab(pestaña);	
 		
-		pestaña = tabcontent.newTabSpec("Nueva Nota");
-		pestaña.setContent(R.id.addnotas);
-		pestaña.setIndicator("Nueva Nota",getResources().getDrawable(android.R.drawable.ic_delete));
+		pestaña = tabcontent.newTabSpec("Notas");
+		pestaña.setContent(R.id.notas);
+		pestaña.setIndicator("Notas",getResources().getDrawable(android.R.drawable.ic_delete));
 		tabcontent.addTab(pestaña);
 		
 		pestaña = tabcontent.newTabSpec("Logros");
@@ -93,12 +95,7 @@ public class info_materia extends Fragment
 		pestaña.setIndicator("Logro",getResources().getDrawable(android.R.drawable.ic_delete));
 		tabcontent.addTab(pestaña);
 		
-		pestaña = tabcontent.newTabSpec("Notas");
-		pestaña.setContent(R.id.notas);
-		pestaña.setIndicator("Notas",getResources().getDrawable(android.R.drawable.ic_delete));
-		tabcontent.addTab(pestaña);	
-		
-		
+			
 		id_materia = getArguments().getString("mat");
 		VerificarMateria(id_materia);
 		
@@ -108,6 +105,7 @@ public class info_materia extends Fragment
 		txtporce.setText(ActualizarPorcentaje()+"");
 		
 		eval_notas = (Spinner)rootView.findViewById(R.id.eva_notas);
+		totalnota = (TextView)rootView.findViewById(R.id.totalnota);
 		
 		rs = rootView.getResources();
 		tabla = (TableLayout)rootView.findViewById(R.id.tabla);
@@ -120,6 +118,26 @@ public class info_materia extends Fragment
 		ActualizarNotas();
 		AgregarCabecera();
 		
+		if(ActualizarPorcentaje()==100)
+        {
+        	tabcontent.getTabWidget().getChildAt(1).setEnabled(true);
+    		tabcontent.getTabWidget().getChildAt(2).setEnabled(true);
+    		tabcontent.getTabWidget().getChildAt(0).setEnabled(false);
+    		tabcontent.setCurrentTab(1);
+    		tabla.removeAllViews();
+    		cabecera.removeAllViews();
+    		AgregarFilasTabla();
+    		AgregarCabecera();
+        }
+		else
+		{		
+			tabcontent.getTabWidget().getChildAt(1).setEnabled(false);
+			tabcontent.getTabWidget().getChildAt(2).setEnabled(false);
+			tabla.removeAllViews();
+    		cabecera.removeAllViews();
+    		AgregarFilasTabla();
+    		AgregarCabecera();
+		}
 		
 		adap = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_spinner_item,evaluaciones);
 		adap.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -131,74 +149,103 @@ public class info_materia extends Fragment
 			@Override
 			public void onClick(View arg0) 
 			{			
-				if(!txtevaluacion.getText().toString().equals("") && !txtpeso.getText().toString().equals(""))
+				if(!txtevaluacion.getText().toString().equals(""))
 				{
-					evalua = txtevaluacion.getText().toString();
-					peso = Integer.parseInt(txtpeso.getText().toString());
-					Double nota=0.0;
-					Boolean ver=false;
-					
-					//Inicializamos la base
-			        SQLiteDatabase myDB = null;
-			        //creo la base de datos
-			        myDB = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
-			        //ahora creo una tabla
-			        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
-			        String[] campos = new String[] {"materia,evaluacion,porcentaje"};
-			        String[] args = {getArguments().getString("mat")};
-			        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
-			        if(c==null || c.getCount()==0)
-			        {
-			            myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
-			            txtevaluacion.setText("");
-		        		txtpeso.setText("");
-		        		txtporce.setText(ActualizarPorcentaje()+"");
-		        		ActualizarNotas();
-			            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_SHORT).show();
-			        }
-			        else
-			        {			   
-			        	while(c.moveToNext() && ver==false)
-			            {
-			        		int col_eva = c.getColumnIndexOrThrow("evaluacion");
-			        		
-			        		String eva_dato = c.getString(col_eva);
-			        		if(eva_dato.toString().equals(evalua))
-			        		{
-			        			ver=true;
-			        		}
-			            }
-			        	
-			        	if(ver==false)
-			        	{			        	
-				        	if(ActualizarPorcentaje()+peso<=100 )
-				        	{
+					if(!txtpeso.getText().toString().equals(""))
+					{
+						evalua = txtevaluacion.getText().toString();
+						peso = Integer.parseInt(txtpeso.getText().toString());
+						Double nota=0.0;
+						Boolean ver=false;
+						
+						//Inicializamos la base
+				        SQLiteDatabase myDB = null;
+				        //creo la base de datos
+				        myDB = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+				        //ahora creo una tabla
+				        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+				        String[] campos = new String[] {"materia,evaluacion,porcentaje"};
+				        String[] args = {getArguments().getString("mat")};
+				        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
+				        if(c==null || c.getCount()==0)
+				        {
+				            myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
+				            txtevaluacion.setText("");
+			        		txtpeso.setText("");
+			        		txtporce.setText(ActualizarPorcentaje()+"");
+			        		ActualizarNotas();
+				            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_SHORT).show();
+				        }
+				        else
+				        {			   
+				        	while(c.moveToNext() && ver==false)
+				            {
+				        		int col_eva = c.getColumnIndexOrThrow("evaluacion");
 				        		
-				        		myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
-				        		txtevaluacion.setText("");
-				        		txtpeso.setText("");
-				        		txtporce.setText(ActualizarPorcentaje()+"");
-				        		ActualizarNotas();
-				        		reloadFragment("info_materia");
-					            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_LONG).show();
+				        		String eva_dato = c.getString(col_eva);
+				        		if(eva_dato.toString().equals(evalua))
+				        		{
+				        			ver=true;
+				        		}
+				            }
+				        	
+				        	if(ver==false)
+				        	{			        	
+					        	if(ActualizarPorcentaje()+peso<=100 )
+					        	{
+					        		
+					        		myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
+					        		txtevaluacion.setText("");
+					        		txtpeso.setText("");
+					        		txtporce.setText(ActualizarPorcentaje()+"");
+					        		ActualizarNotas();
+					        		reloadFragment("info_materia");
+						            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_LONG).show();
+						            
+					        	}
+					        	else
+					        	{
+					        		txtpeso.setText("");
+					        		Toast.makeText(rootView.getContext(), "Porcentaje mal Digitado", Toast.LENGTH_LONG).show();
+					        	}
 				        	}
 				        	else
 				        	{
-				        		txtpeso.setText("");
-				        		Toast.makeText(rootView.getContext(), "Porcentaje mal Digitado", Toast.LENGTH_LONG).show();
+				        		txtevaluacion.setText("");
+				        		Toast.makeText(rootView.getContext(), "Evaluacion ya ingresada", Toast.LENGTH_LONG).show();
 				        	}
-			        	}
-			        	else
-			        	{
-			        		txtevaluacion.setText("");
-			        		Toast.makeText(rootView.getContext(), "Evaluacion ya ingresada", Toast.LENGTH_LONG).show();
-			        	}
-			        }
+				        }
+					}
+				    else
+				    {
+				    	if(txtevaluacion.getText().toString().equals(""))
+						{
+							txtevaluacion.setError("Olvidaste la evalución");
+						}
+						if(txtpeso.getText().toString().equals(""))
+						{
+							txtpeso.setError("Olvidaste el peso de la evaluación");
+						}
+				    }
 				}
 				else
 				{
-					Toast.makeText(rootView.getContext(), "Llene todos los campos", Toast.LENGTH_LONG).show();
+					if(txtevaluacion.getText().toString().equals(""))
+					{
+						txtevaluacion.setError("Olvidaste la evalución");
+					}
+					if(txtpeso.getText().toString().equals(""))
+					{
+						txtpeso.setError("Olvidaste el peso de la evaluación");
+					}
 				}
+				if(ActualizarPorcentaje()==100)
+	            {
+	            	tabcontent.getTabWidget().getChildAt(1).setEnabled(true);
+	        		tabcontent.getTabWidget().getChildAt(2).setEnabled(true);	        		
+	        		tabcontent.getTabWidget().getChildAt(0).setEnabled(false);
+	        		tabcontent.setCurrentTab(1);
+	            }
 			}
 		});
 		
@@ -234,7 +281,8 @@ public class info_materia extends Fragment
 			        	int col_nota = c.getColumnIndexOrThrow("nota");        		
 			        	Double nota_dato = c.getDouble(col_nota);
 				        Toast.makeText(rootView.getContext(), "Mat: "+mat_dato+ " - eva: "+eval_dato+" - no: "+nota_dato, Toast.LENGTH_LONG).show();
-				        */if(mat_dato.toString().equals(id_materia))
+				        */
+				        if(mat_dato.toString().equals(id_materia))
 				        {
 				        	int col_eval = c.getColumnIndexOrThrow("evaluacion");        		
 				        	String eval_dato = c.getString(col_eval);
@@ -300,6 +348,11 @@ public class info_materia extends Fragment
 							   		valores.put("nota",nota);	        		   	        		  
 					        	    myDB.update(BD_TABLA_INFO, valores, "materia='"+id_materia+"' AND evaluacion='"+eval_notas.getSelectedItem()+"'", null);
 					        	    Toast.makeText(rootView.getContext(), "Nota Asignada a la Evaluación", Toast.LENGTH_SHORT).show();
+					        	    //reloadFragment("info_materia");
+					        	    tabla.removeAllViews();
+						    		cabecera.removeAllViews();
+						    		AgregarFilasTabla();
+						    		AgregarCabecera();					        	   
 					        	    myDB.close();
 							   	}			        	
 					        }			       				      
@@ -307,19 +360,17 @@ public class info_materia extends Fragment
 					}				
 					else
 					{
-						Toast.makeText(rootView.getContext(), "Nota mal digitada", Toast.LENGTH_LONG).show();
+						txtnota.setError("Nota mal digitada para este corte!");	
 						txtnota.setText("");
 					}
 				}
 				else
 				{
-					Toast.makeText(rootView.getContext(), "Digite nota de esta evaluación", Toast.LENGTH_LONG).show();
+					txtnota.setError("Olvidaste colocar la nota para este corte!");					
 				}
 			}
 		});
-		
-		totalnota = (TextView)rootView.findViewById(R.id.totalnota);
-		
+					
 		tabcontent.setOnTabChangedListener(new OnTabChangeListener() 
 		{
 		    @Override
@@ -377,16 +428,17 @@ public class info_materia extends Fragment
 			        	}			        						   			       
 			        }
 			        resultotal = (promdeseado-resul)/(sumatotal);
-			        txtpromediototal.setText("Necesitas sacar "+resultotal+" en los cortes restantes.");			        
+			        DecimalFormat df = new DecimalFormat("0.00");
+			        
+			        txtpromediototal.setText("Necesitas sacar "+df.format(resultotal)+" en los cortes restantes.");			        
 				}
 				else
 				{
-					Toast.makeText(rootView.getContext(), "Digite Promedio Deseado", Toast.LENGTH_SHORT).show();
+					txtlogronota.setError("Olvidaste ingresar el promedio deseado!");
 				}
 			}
 		});
-		
-		
+				
 		return rootView;
 	}
 	
@@ -475,7 +527,9 @@ public class info_materia extends Fragment
 
 			tabla.addView(fila);			
         }
-        totalnota.setText(String.valueOf(suma));
+        
+        DecimalFormat df = new DecimalFormat("0.00");        
+        totalnota.setText(df.format(suma));
 	}
 	
 	public void AgregarCabecera()

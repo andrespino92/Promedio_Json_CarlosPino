@@ -32,13 +32,15 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
-            android:id="@+id/txtcreditoscursados"
+            android:id="@+id/txtcreditosaprobados"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:enabled="false"
             android:gravity="center"
-            android:inputType="number" >
+            android:inputType="number"
+            android:textColor="#FFFFFF" >
 
             <requestFocus />
         </EditText>
@@ -66,8 +68,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:enabled="false"
             android:gravity="center"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 
     <LinearLayout
@@ -91,8 +95,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:enabled="false"
             android:gravity="center"
-            android:inputType="number" >
+            android:inputType="number"
+            android:textColor="#FFFFFF" >
 
             <requestFocus />
         </EditText>
@@ -120,7 +126,8 @@
             android:layout_weight="1"
             android:ems="10"
             android:gravity="center"
-            android:inputType="numberDecimal" >
+            android:inputType="numberDecimal"
+            android:textColor="#FFFFFF" >
 
             <requestFocus />
         </EditText>
@@ -133,12 +140,21 @@
         android:orientation="horizontal"
         android:padding="10dp" >
 
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/n"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
         <EditText
             android:id="@+id/txtpromediototal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:cursorVisible="false"
+            android:gravity="center"
             android:ems="10"
             android:focusable="false"
             android:inputType="textMultiLine" />

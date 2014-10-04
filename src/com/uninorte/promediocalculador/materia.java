@@ -66,9 +66,16 @@ public class materia extends Fragment
 				{ 
 				    @Override
 				    public void onClick(DialogInterface dialog, int which) 
-				    {
-				        texto = input.getText().toString();
-				        BaseDatosInsertar(texto);
+				    {				        
+				        if(!input.getText().toString().equals(""))
+				        {
+				        	texto = input.getText().toString();
+				        	BaseDatosInsertar(texto);
+				        }
+				        else
+				        {
+				        	Toast.makeText(rootView.getContext(), "Campo de texto vacio", Toast.LENGTH_SHORT).show();
+				        }
 				    }
 				});
 				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() 
@@ -147,7 +154,7 @@ public class materia extends Fragment
         Cursor c = myDB.query(BD_TABLA, null, null, null, null, null, null);
         if(c==null || c.getCount()==0)
         {
-        	Toast.makeText(rootView.getContext(), "No hay Materias Registradas", Toast.LENGTH_SHORT).show();
+        	//Toast.makeText(rootView.getContext(), "No hay Materias Registradas", Toast.LENGTH_SHORT).show();
         }
         else
         {

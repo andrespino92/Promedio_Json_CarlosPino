@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -32,6 +33,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	private final String BD_NOMBRE = "BaseDatosPrueba";
     private final String BD_TABLA  = "materias";
     private final String BD_TABLA_INFO  = "infomateria";
+    private final String BD_TABLA_PROMEDIO = "promedio";
     public String materia;
 
 	@Override
@@ -45,6 +47,22 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,(DrawerLayout) findViewById(R.id.drawer_layout));
+		
+		//Inicializamos la base
+        SQLiteDatabase myDB = null;
+        //creo la base de datos
+        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+        //ahora creo una tabla
+        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_PROMEDIO + " (ca DECIMAL, pa DECIMAL,cc DECIMAL);");
+        //Comprobamos que la materia no exista en la base de datos       
+        Cursor c = myDB.query(BD_TABLA_PROMEDIO, null,null,null, null, null, null);        
+        if(c==null || c.getCount()==0)
+        {
+            //Toast.makeText(getBaseContext(), "No hay nada en la bases datos", Toast.LENGTH_LONG).show();
+            FragmentManager fm = MainActivity.this.getSupportFragmentManager();// getActivity().getSupportFragmentManager(); 
+	    	pantalla_inicio inicio = new pantalla_inicio();                
+	    	inicio.show(fm, "pantalla_inicio");            
+        }
 	}
 
 	@Override
@@ -55,8 +73,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		Fragment fragment;
 		switch (position)
 		{
-			case 0:
-				fragmentManager.beginTransaction().replace(R.id.container,PlaceholderFragment.newInstance(position + 1)).commit();
+			case 0:			
+				fragmentManager.beginTransaction().replace(R.id.container,PlaceholderFragment.newInstance(position + 1),"inicio").commit();			
 				break;
 			case 1:
 				fragment = new materia();
@@ -117,13 +135,34 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		if (id == R.id.action_settings) 
 		{
 			//Inicializamos la base
-	        SQLiteDatabase myDB = null;
-	        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);	        
-	        myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA);
-	        myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_INFO);
-	        reloadFragment("materia");
-			Toast.makeText(this, "Restaurado Todo", Toast.LENGTH_LONG).show();
-			return true;
+	        SQLiteDatabase myDB=null,myDB1=null,myDB2 = null;
+	        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+	        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
+	        
+	        myDB1 = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+	        myDB1.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+	        
+	        myDB2 = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+	        myDB2.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_PROMEDIO + " (ca DECIMAL, pa DECIMAL,cc DECIMAL);");
+	        //Comprobamos que la materia no exista en la base de datos       
+	        Cursor c = myDB.query(BD_TABLA, null,null,null, null, null, null);
+	        if(c==null || c.getCount()==0)
+	        {
+	        	 myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA);
+	        	 myDB1.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_INFO);
+	        	 myDB2.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_PROMEDIO);
+	        	 Toast.makeText(this, "Restaurado Todo", Toast.LENGTH_SHORT).show();
+	        	 return true;
+	        }
+	        else
+	        {
+	        	myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA);
+	        	myDB1.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_INFO);
+	        	myDB2.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_PROMEDIO);
+	        	//reloadFragment("inicio");
+				Toast.makeText(this, "Restaurado Todo", Toast.LENGTH_SHORT).show();
+				return true;
+	        }	        	      
 		}
 		if(id==R.id.action_materia)
 		{
@@ -139,7 +178,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     		    public void onClick(DialogInterface dialog, int which) 
     		    {
     		    	materia = input.getText().toString();
-    		    	eliminarmateria(materia);    		    	    				
+    		    	eliminarmateria(materia);
     		    }
     		});
     		builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() 
@@ -188,26 +227,33 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	
 	public void eliminarmateria(String mat)
 	{
-		//Inicializamos la base
-        myDB = null;
-        //creo la base de datos        
-        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);        
-        //ahora creo una tabla
-        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
-      //Comprobamos que la materia no exista en la base de datos
-        String[] campos = new String[] {"materia,creditos"};    
-        String[] args = {mat};
-        Cursor c = myDB.query(BD_TABLA, campos,"materia=?", args, null, null, null);
-        if(c==null || c.getCount()==0)
-        {
-        	Toast.makeText(this, "No Existe Materia", Toast.LENGTH_LONG).show();
-        }
-        else
-        {        
-        	myDB.delete(BD_TABLA, "materia='"+mat+"'", null);
-        	reloadFragment("materia");
-        	Toast.makeText(this, "Materia Eliminada", Toast.LENGTH_LONG).show();
-        }
+		if(!mat.equals(""))
+		{
+			//Inicializamos la base
+	        myDB = null;
+	        //creo la base de datos        
+	        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);        
+	        //ahora creo una tabla
+	        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
+	      //Comprobamos que la materia no exista en la base de datos
+	        String[] campos = new String[] {"materia,creditos"};    
+	        String[] args = {mat};
+	        Cursor c = myDB.query(BD_TABLA, campos,"materia=?", args, null, null, null);
+	        if(c==null || c.getCount()==0)
+	        {
+	        	Toast.makeText(this, "No Existe Materia", Toast.LENGTH_LONG).show();
+	        }
+	        else
+	        {        
+	        	myDB.delete(BD_TABLA, "materia='"+mat+"'", null);
+	        	reloadFragment("materia");
+	        	Toast.makeText(this, "Materia Eliminada", Toast.LENGTH_LONG).show();
+	        }
+		}
+		else
+		{
+			Toast.makeText(this, "Campo de texto vacio", Toast.LENGTH_LONG).show();
+		}  	
 	}	
 
 	public void reloadFragment(String tag)

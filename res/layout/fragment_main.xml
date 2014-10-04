@@ -35,7 +35,7 @@
         android:id="@+id/imageView1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.39"
+        android:layout_weight="0.26"
         android:src="@drawable/calcular_promedio" />
 
 </LinearLayout>

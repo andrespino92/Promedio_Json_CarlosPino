@@ -2,6 +2,13 @@
 <resources>
 
     <string name="app_name">Calculador de Promedio</string>
+    
+    <string name="txtinicio">Esta es tu primera vez en la aplicación, Ingrese los datos requeridos</string>
+    <string name="ca">Creditos Aprobados</string>
+    <string name="pa">Promedio Acumulado</string>
+    <string name="cc">Creditos Cursados Actual</string>
+    <string name="bv">Bienvenido a la Aplicación</string>
+    
     <string name="inicio">Inicio</string>
     <string name="materias">Materias</string>
     <string name="promedio">Promedio</string>
@@ -9,6 +16,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="restaurar">Restaurar Todo</string>
     <string name="restaurarmateria">Eliminar Materia</string>
+    <string name="n">Necesitas: </string>
     
     <string name="titulomateria">Lista de Todas Tus Materias</string>
     <string name="addmateria">Agregar Materia</string>
@@ -19,7 +27,7 @@
     <string name="porc">Porcentaje Total: </string>
     <string name="nota">Nota: </string>
     <string name="notass">Digite Nota</string>
-    <string name="addnota">Agregar Nota</string>
+    <string name="addnota">Add</string>
     <string name="txtlogro">Digite el Promedio Deseado en la Materia</string>
     <string name="logronota">Promedio Deseado</string>
     <string name="btnlogrocalu">Calcular</string>

@@ -46,6 +46,102 @@
                 android:layout_height="match_parent" >
 
                 <LinearLayout
+                    android:id="@+id/notas"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <LinearLayout
+                        android:id="@+id/notas1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+                        <Spinner
+                            android:id="@+id/eva_notas"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <EditText
+                            android:id="@+id/txtnota"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            android:hint="@string/notass"
+                            android:inputType="numberDecimal" />
+                        
+                        <Button
+                            android:id="@+id/addnota"
+                            style="@style/boton_ingresar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.5"
+                            android:text="@string/addnota" />
+                    </LinearLayout>
+  
+
+                    <TableLayout
+                        android:id="@+id/cabecera"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+                    </TableLayout>
+
+                    <ScrollView
+                        android:id="@+id/scroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="3"
+                        android:gravity="center_horizontal"
+                        android:scrollbars="vertical" >
+
+                        <LinearLayout
+                            android:id="@+id/hola"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical" >
+
+                            <TableLayout
+                                android:id="@+id/tabla"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" >
+                            </TableLayout>
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <LinearLayout
+                        android:id="@+id/holaa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.05"
+                        android:gravity="bottom"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/textView5"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="@string/totalmateria"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <TextView
+                            android:id="@+id/totalnota"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="right"
+                            android:text="@string/totalnota"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/logro"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -117,119 +213,6 @@
                             </LinearLayout>
                         </LinearLayout>
                     </ScrollView>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/notas"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:padding="10dp" >
-
-                    <TableLayout
-                        android:id="@+id/cabecera"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
-                    </TableLayout>
-
-                    <ScrollView
-                        android:id="@+id/scroll"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="3"
-                        android:gravity="center_horizontal"
-                        android:scrollbars="vertical" >
-
-                        <LinearLayout
-                            android:id="@+id/hola"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical" >
-
-                            <TableLayout
-                                android:id="@+id/tabla"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content" >
-                            </TableLayout>
-                        </LinearLayout>
-                    </ScrollView>
-
-                    <LinearLayout
-                        android:id="@+id/holaa"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.05"
-                        android:gravity="bottom"
-                        android:orientation="horizontal" >
-
-                        <TextView
-                            android:id="@+id/textView5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="@string/totalmateria"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                        <TextView
-                            android:id="@+id/totalnota"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/totalnota"
-                            android:gravity="right"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/addnotas"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="15dp" >
-
-                    <Spinner
-                        android:id="@+id/eva_notas"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:id="@+id/textView4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:paddingBottom="30dp"
-                        android:paddingTop="60dp"
-                        android:text="@string/nota"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-                    <EditText
-                        android:id="@+id/txtnota"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:gravity="center"
-                        android:hint="@string/notass"
-                        android:inputType="numberDecimal" />
-
-                    <LinearLayout
-                        android:id="@+id/boton10"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center|top"
-                        android:orientation="horizontal"
-                        android:padding="10dp" >
-
-                        <Button
-                            android:id="@+id/addnota"
-                            style="@style/boton_ingresar"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/addnota" />
-                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout

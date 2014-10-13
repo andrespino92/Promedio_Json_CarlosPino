@@ -48,5 +48,8 @@
     <string name="notanota">Nota</string>
     <string name="totalmateria">Nota Acumulada:</string>
     <string name="totalnota"></string>
+    
+    <string name="erro_titile">Opps Sorry</string>
+    <string name="error_msg">Sorry, there was an error</string>
 
 </resources>

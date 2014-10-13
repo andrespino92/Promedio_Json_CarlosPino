@@ -118,14 +118,15 @@ public class info_materia extends Fragment
 		ActualizarNotas();
 		AgregarCabecera();
 		
-		if(ActualizarPorcentaje()==100)
+		if(ActualizarPorcentaje()>=100)
         {
+			tabla.removeAllViews();
+    		cabecera.removeAllViews();
         	tabcontent.getTabWidget().getChildAt(1).setEnabled(true);
     		tabcontent.getTabWidget().getChildAt(2).setEnabled(true);
     		tabcontent.getTabWidget().getChildAt(0).setEnabled(false);
     		tabcontent.setCurrentTab(1);
-    		tabla.removeAllViews();
-    		cabecera.removeAllViews();
+    		
     		AgregarFilasTabla();
     		AgregarCabecera();
         }
@@ -623,8 +624,7 @@ public class info_materia extends Fragment
         {
         	while(c.moveToNext())
             {
-        		int col_porcen = c.getColumnIndexOrThrow("porcentaje");
-        		
+        		int col_porcen = c.getColumnIndexOrThrow("porcentaje");        		
         		int porcen_dato = c.getInt(col_porcen);
         		suma = suma+porcen_dato;
             }
@@ -665,7 +665,7 @@ public class info_materia extends Fragment
 	        		builder.setTitle("Creditos de la Materia");
 	        		final EditText input = new EditText(rootView.getContext());
 	        		input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_NUMBER);
-	        		builder.setView(input);
+	        		builder.setView(input);	        		
 	        		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() 
 	        		{ 
 	        		    @Override

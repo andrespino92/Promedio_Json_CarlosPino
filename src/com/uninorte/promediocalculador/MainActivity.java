@@ -1,5 +1,19 @@
 package com.uninorte.promediocalculador;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.support.v7.app.ActionBarActivity;
@@ -8,18 +22,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.text.InputType;
 import android.widget.EditText;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks 
@@ -35,6 +57,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private final String BD_TABLA_INFO  = "infomateria";
     private final String BD_TABLA_PROMEDIO = "promedio";
     public String materia;
+    
+    protected String TAG = MainActivity.class.getSimpleName();
+    protected static Context mContext;
+	protected JSONObject mData;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -47,6 +73,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,(DrawerLayout) findViewById(R.id.drawer_layout));
+		
+		//Toast.makeText(getBaseContext(), "OJJJJJOOOOOOOOOO", Toast.LENGTH_LONG).show();
+		
+		mContext = getBaseContext().getApplicationContext();
+		
+		
+		
 		
 		//Inicializamos la base
         SQLiteDatabase myDB = null;
@@ -61,10 +94,190 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             //Toast.makeText(getBaseContext(), "No hay nada en la bases datos", Toast.LENGTH_LONG).show();
             FragmentManager fm = MainActivity.this.getSupportFragmentManager();// getActivity().getSupportFragmentManager(); 
 	    	pantalla_inicio inicio = new pantalla_inicio();                
-	    	inicio.show(fm, "pantalla_inicio");            
+	    	inicio.show(fm, "pantalla_inicio");
+	    	if (isNetworkAvailable()) 
+			{
+				GetDataTask getDataTask = new GetDataTask();
+				getDataTask.execute();
+			}
         }
 	}
+	
+	//NUEVO
+	private boolean isNetworkAvailable() 
+	{
+		ConnectivityManager manager = (ConnectivityManager) getBaseContext().getSystemService(mContext.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+		boolean isNetworkAvaible = false;
+		if (networkInfo != null && networkInfo.isConnected()) 
+		{
+			isNetworkAvaible = true;
+			//Toast.makeText(mContext, "Network is available", Toast.LENGTH_LONG).show();
+		} 
+		else
+		{
+			//Toast.makeText(mContext, "Network not available", Toast.LENGTH_LONG).show();
+		}
+		return isNetworkAvaible;
+	}
 
+	//NUEVO
+	public void handleBlogResponse() 
+	{
+		String nombre_materia="";
+		if (mData == null)
+		{
+			updateDisplayForError();
+		} 
+		else 
+		{
+			//Inicializamos la base
+	        SQLiteDatabase myDB = null;
+	        //creo la base de datos
+	        myDB =getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+	        //ahora creo una tabla
+	        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+	        /*String[] campos = new String[] {"materia,evaluacion,porcentaje"};
+	        String[] args = {getArguments().getString("mat")};
+	        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
+	        if(c==null || c.getCount()==0)
+	        {
+	            myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
+	            txtevaluacion.setText("");
+        		txtpeso.setText("");
+        		txtporce.setText(ActualizarPorcentaje()+"");
+        		ActualizarNotas();
+	            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_SHORT).show();
+	        }*/
+			
+			
+			try 
+			{
+				JSONArray jsonPosts = mData.getJSONArray("notas");
+				ArrayList<HashMap<String, String>> blogPosts = new ArrayList<HashMap<String,String>>();
+				for (int i = 0;i< jsonPosts.length();i++)
+				{
+					JSONObject post = jsonPosts.getJSONObject(i);
+					nombre_materia = post.getString("curso_nombre");
+					nombre_materia  = Html.fromHtml(nombre_materia).toString();
+					
+					String corte_materia = post.getString("nota_nombre");
+					corte_materia  = Html.fromHtml(corte_materia).toString();
+					
+					String porcentaje_materia = post.getString("nota_porcentaje");
+					porcentaje_materia  = Html.fromHtml(porcentaje_materia).toString();
+					
+					int porcentaje = Integer.parseInt(porcentaje_materia);
+					Double nota=0.0;
+					
+					myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+nombre_materia+"','"+corte_materia+"','"+porcentaje+"','"+nota+"');");
+					//Toast.makeText(getBaseContext(), "materia: "+nombre_materia+" - corte: "+corte_materia+" - peso: "+porcentaje_materia, Toast.LENGTH_LONG).show();
+					
+					//subTittle  = Html.fromHtml(subTittle + " -> "+ subPerc+"%").toString();
+					
+					/*HashMap<String, String > blogPost = new HashMap<String, String>();
+					blogPost.put("curso_nombre", nombre_materia);
+					blogPost.put("nota_nombre", subTittle);
+					blogPosts.add(blogPost);*/										
+				}
+				
+				//Inicializamos la base
+		        myDB = null;
+		        //creo la base de datos
+		        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+		        //ahora creo una tabla
+		        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
+		        //Comprobamos que la materia no exista en la base de datos
+		        String[] campos = new String[] {"materia"};
+		        String[] args = {nombre_materia};
+		        int credi = 0;
+		        Cursor c = myDB.query(BD_TABLA, campos, "materia=?", args, null, null, null);
+		        
+		        if(c==null || c.getCount()==0)
+		        {
+		            //Toast.makeText(getBaseContext(), "No hay nada en el cursor", Toast.LENGTH_LONG).show();
+		            myDB.execSQL("INSERT INTO "+ BD_TABLA + " (materia,creditos)"+ " VALUES ('"+nombre_materia+"','"+credi+"');");
+		            //Toast.makeText(getBaseContext(), "Materia Creada", Toast.LENGTH_LONG).show();
+		        }
+		        else
+		        {
+		        	//Toast.makeText(getBaseContext(), "La Materia ya Existe", Toast.LENGTH_LONG).show();
+		        }
+				
+				/*String[] keys = {"curso_nombre","nota_nombre"};
+				int ids[] = {android.R.id.text1,android.R.id.text2};
+				SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), blogPosts, android.R.layout.simple_list_item_2,keys, ids);
+				setListAdapter(adapter);*/
+			} catch (JSONException e) {
+				//Log.e(TAG,"Exception caught!",e);
+			}
+		}
+		 
+	}
+	
+	//NUEVO
+	private void updateDisplayForError() 
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle(R.string.erro_titile);
+		builder.setMessage(R.string.error_msg);
+		builder.setPositiveButton(android.R.string.ok, null);
+		AlertDialog dialog = builder.create();
+		dialog.show();
+		
+		/*TextView emptyTextView = (TextView) getListView().getEmptyView();
+		emptyTextView.setText(getString(R.string.no_items));*/
+	}
+	
+	//NUEVO
+	public class GetDataTask extends AsyncTask<Object, Void, JSONObject> 
+	{
+
+		@Override
+		protected JSONObject doInBackground(Object... params) 
+		{
+			int responseCode = -1;
+			JSONObject jsonResponse = null;
+			try {
+				URL blogFeedUsr = new URL("http://ylang-ylang.uninorte.edu.co:8080/promedioapp/read.php");
+				HttpURLConnection connection = (HttpURLConnection) blogFeedUsr.openConnection();
+				connection.connect();
+
+				responseCode = connection.getResponseCode();
+
+				if (responseCode == HttpURLConnection.HTTP_OK) 
+				{
+					InputStream inputStram = connection.getInputStream();
+					Reader reader = new InputStreamReader(inputStram);
+					char[] charArray = new char[connection.getContentLength()];
+					reader.read(charArray);
+					String responseData = new String(charArray);
+					Log.v(TAG,responseData);
+					jsonResponse = new JSONObject(responseData);
+				}
+				else 
+				{
+					Log.i(TAG,"Response code unsuccesfull "+ String.valueOf(responseCode));
+				}
+			} 
+			catch (MalformedURLException e) {
+				Log.e(TAG, "Exception", e);
+			} catch (IOException e) {
+				Log.e(TAG, "Exception", e);
+			} catch (Exception e) {
+				Log.e(TAG, "Exception", e);
+			}
+			return jsonResponse;
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			mData = result;
+			handleBlogResponse();
+		}
+
+	}
+	
 	@Override
 	public void onNavigationDrawerItemSelected(int position) 
 	{
@@ -210,18 +423,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container,
-					false);
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) 
+		{
+			View rootView = inflater.inflate(R.layout.fragment_main, container,false);
 			return rootView;
 		}
 
 		@Override
-		public void onAttach(Activity activity) {
+		public void onAttach(Activity activity) 
+		{
 			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(getArguments().getInt(
-					ARG_SECTION_NUMBER));
+			((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 		}
 	}
 	

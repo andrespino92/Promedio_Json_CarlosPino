@@ -1,5 +1,6 @@
 package com.uninorte.promediocalculador;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,7 +10,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,9 +65,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     private final String BD_TABLA_PROMEDIO = "promedio";
     public String materia;
     
-    protected String TAG = MainActivity.class.getSimpleName();
     protected static Context mContext;
-	protected JSONObject mData;
+	protected String TAG = MainActivity.class.getSimpleName();
+    
+    
+    
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -77,9 +87,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		//Toast.makeText(getBaseContext(), "OJJJJJOOOOOOOOOO", Toast.LENGTH_LONG).show();
 		
 		mContext = getBaseContext().getApplicationContext();
-		
-		
-		
+		if (isNetworkAvailable()) 
+		{
+			//GetDataTask cd = new GetDataTask();
+       		CargarDatos cd = new CargarDatos();
+			cd.execute("http://augustodesarrollador.com/promedio_app/read.php");
+		}
 		
 		//Inicializamos la base
         SQLiteDatabase myDB = null;
@@ -88,196 +101,17 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         //ahora creo una tabla
         myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_PROMEDIO + " (ca DECIMAL, pa DECIMAL,cc DECIMAL);");
         //Comprobamos que la materia no exista en la base de datos       
-        Cursor c = myDB.query(BD_TABLA_PROMEDIO, null,null,null, null, null, null);        
+        Cursor c = myDB.query(BD_TABLA_PROMEDIO, null,null,null, null, null, null);
+        //myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_PROMEDIO);
         if(c==null || c.getCount()==0)
         {
             //Toast.makeText(getBaseContext(), "No hay nada en la bases datos", Toast.LENGTH_LONG).show();
             FragmentManager fm = MainActivity.this.getSupportFragmentManager();// getActivity().getSupportFragmentManager(); 
 	    	pantalla_inicio inicio = new pantalla_inicio();                
-	    	inicio.show(fm, "pantalla_inicio");
-	    	if (isNetworkAvailable()) 
-			{
-				GetDataTask getDataTask = new GetDataTask();
-				getDataTask.execute();
-			}
+	    	inicio.show(fm, "pantalla_inicio");	    	
         }
 	}
-	
-	//NUEVO
-	private boolean isNetworkAvailable() 
-	{
-		ConnectivityManager manager = (ConnectivityManager) getBaseContext().getSystemService(mContext.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-		boolean isNetworkAvaible = false;
-		if (networkInfo != null && networkInfo.isConnected()) 
-		{
-			isNetworkAvaible = true;
-			//Toast.makeText(mContext, "Network is available", Toast.LENGTH_LONG).show();
-		} 
-		else
-		{
-			//Toast.makeText(mContext, "Network not available", Toast.LENGTH_LONG).show();
-		}
-		return isNetworkAvaible;
-	}
 
-	//NUEVO
-	public void handleBlogResponse() 
-	{
-		String nombre_materia="";
-		if (mData == null)
-		{
-			updateDisplayForError();
-		} 
-		else 
-		{
-			//Inicializamos la base
-	        SQLiteDatabase myDB = null;
-	        //creo la base de datos
-	        myDB =getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
-	        //ahora creo una tabla
-	        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
-	        /*String[] campos = new String[] {"materia,evaluacion,porcentaje"};
-	        String[] args = {getArguments().getString("mat")};
-	        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
-	        if(c==null || c.getCount()==0)
-	        {
-	            myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+id_materia+"','"+evalua+"','"+peso+"','"+nota+"');");
-	            txtevaluacion.setText("");
-        		txtpeso.setText("");
-        		txtporce.setText(ActualizarPorcentaje()+"");
-        		ActualizarNotas();
-	            Toast.makeText(rootView.getContext(), "Evaluación Agregada", Toast.LENGTH_SHORT).show();
-	        }*/
-			
-			
-			try 
-			{
-				JSONArray jsonPosts = mData.getJSONArray("notas");
-				ArrayList<HashMap<String, String>> blogPosts = new ArrayList<HashMap<String,String>>();
-				for (int i = 0;i< jsonPosts.length();i++)
-				{
-					JSONObject post = jsonPosts.getJSONObject(i);
-					nombre_materia = post.getString("curso_nombre");
-					nombre_materia  = Html.fromHtml(nombre_materia).toString();
-					
-					String corte_materia = post.getString("nota_nombre");
-					corte_materia  = Html.fromHtml(corte_materia).toString();
-					
-					String porcentaje_materia = post.getString("nota_porcentaje");
-					porcentaje_materia  = Html.fromHtml(porcentaje_materia).toString();
-					
-					int porcentaje = Integer.parseInt(porcentaje_materia);
-					Double nota=0.0;
-					
-					myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+nombre_materia+"','"+corte_materia+"','"+porcentaje+"','"+nota+"');");
-					//Toast.makeText(getBaseContext(), "materia: "+nombre_materia+" - corte: "+corte_materia+" - peso: "+porcentaje_materia, Toast.LENGTH_LONG).show();
-					
-					//subTittle  = Html.fromHtml(subTittle + " -> "+ subPerc+"%").toString();
-					
-					/*HashMap<String, String > blogPost = new HashMap<String, String>();
-					blogPost.put("curso_nombre", nombre_materia);
-					blogPost.put("nota_nombre", subTittle);
-					blogPosts.add(blogPost);*/										
-				}
-				
-				//Inicializamos la base
-		        myDB = null;
-		        //creo la base de datos
-		        myDB = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
-		        //ahora creo una tabla
-		        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
-		        //Comprobamos que la materia no exista en la base de datos
-		        String[] campos = new String[] {"materia"};
-		        String[] args = {nombre_materia};
-		        int credi = 0;
-		        Cursor c = myDB.query(BD_TABLA, campos, "materia=?", args, null, null, null);
-		        
-		        if(c==null || c.getCount()==0)
-		        {
-		            //Toast.makeText(getBaseContext(), "No hay nada en el cursor", Toast.LENGTH_LONG).show();
-		            myDB.execSQL("INSERT INTO "+ BD_TABLA + " (materia,creditos)"+ " VALUES ('"+nombre_materia+"','"+credi+"');");
-		            //Toast.makeText(getBaseContext(), "Materia Creada", Toast.LENGTH_LONG).show();
-		        }
-		        else
-		        {
-		        	//Toast.makeText(getBaseContext(), "La Materia ya Existe", Toast.LENGTH_LONG).show();
-		        }
-				
-				/*String[] keys = {"curso_nombre","nota_nombre"};
-				int ids[] = {android.R.id.text1,android.R.id.text2};
-				SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), blogPosts, android.R.layout.simple_list_item_2,keys, ids);
-				setListAdapter(adapter);*/
-			} catch (JSONException e) {
-				//Log.e(TAG,"Exception caught!",e);
-			}
-		}
-		 
-	}
-	
-	//NUEVO
-	private void updateDisplayForError() 
-	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setTitle(R.string.erro_titile);
-		builder.setMessage(R.string.error_msg);
-		builder.setPositiveButton(android.R.string.ok, null);
-		AlertDialog dialog = builder.create();
-		dialog.show();
-		
-		/*TextView emptyTextView = (TextView) getListView().getEmptyView();
-		emptyTextView.setText(getString(R.string.no_items));*/
-	}
-	
-	//NUEVO
-	public class GetDataTask extends AsyncTask<Object, Void, JSONObject> 
-	{
-
-		@Override
-		protected JSONObject doInBackground(Object... params) 
-		{
-			int responseCode = -1;
-			JSONObject jsonResponse = null;
-			try {
-				URL blogFeedUsr = new URL("http://ylang-ylang.uninorte.edu.co:8080/promedioapp/read.php");
-				HttpURLConnection connection = (HttpURLConnection) blogFeedUsr.openConnection();
-				connection.connect();
-
-				responseCode = connection.getResponseCode();
-
-				if (responseCode == HttpURLConnection.HTTP_OK) 
-				{
-					InputStream inputStram = connection.getInputStream();
-					Reader reader = new InputStreamReader(inputStram);
-					char[] charArray = new char[connection.getContentLength()];
-					reader.read(charArray);
-					String responseData = new String(charArray);
-					Log.v(TAG,responseData);
-					jsonResponse = new JSONObject(responseData);
-				}
-				else 
-				{
-					Log.i(TAG,"Response code unsuccesfull "+ String.valueOf(responseCode));
-				}
-			} 
-			catch (MalformedURLException e) {
-				Log.e(TAG, "Exception", e);
-			} catch (IOException e) {
-				Log.e(TAG, "Exception", e);
-			} catch (Exception e) {
-				Log.e(TAG, "Exception", e);
-			}
-			return jsonResponse;
-		}
-
-		@Override
-		protected void onPostExecute(JSONObject result) {
-			mData = result;
-			handleBlogResponse();
-		}
-
-	}
-	
 	@Override
 	public void onNavigationDrawerItemSelected(int position) 
 	{
@@ -478,4 +312,128 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     	ft.attach(frg);
     	ft.commit();
 	}
+
+	//OTOR
+			public class CargarDatos extends AsyncTask<String, Void, String>
+			{
+		        /*Atributos para petición http*/
+		        private HttpClient httpclient;
+		        private HttpPost httppost;
+		        private HttpResponse response;
+		        private JSONObject obj=null,obj1=null;
+				@Override
+				protected String doInBackground(String... parameters) 
+				{
+					StringBuilder answer = new StringBuilder();
+					try
+					{
+						InputStream is;
+						String line ="";
+						BufferedReader rd;
+							httpclient = new DefaultHttpClient();
+			                httppost = new HttpPost(parameters[0]);
+			                response = httpclient.execute(httppost);
+			                is = response.getEntity().getContent();		                
+			                rd = new BufferedReader(new InputStreamReader(is));
+			                while((line = rd.readLine())!=null){
+			                    answer.append(line);
+			                }
+		            }catch (ClientProtocolException ex){
+		                ex.printStackTrace();
+		            }catch (IOException ex){
+		                ex.printStackTrace();
+		            }
+					//Log.d("Respuesta",answer.toString());
+					return answer.toString();
+					
+				}
+				@Override
+				protected void onPostExecute(String data)
+				{					
+					 try
+					 {
+						//Inicializamos la base
+					    SQLiteDatabase myDB = null;
+					    //creo la base de datos
+					    myDB =getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+					    //ahora creo una tabla
+					    myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje DOUBLE,nota DECIMAL);");
+							
+						 
+						String status="";
+								
+						obj = new JSONObject(data);
+				        status = obj.getString("status");
+				        JSONArray materias = obj.getJSONArray("materias");
+				                
+				        //Log.d("Status: ",status.toString());
+				        
+					    if(status.equals("ok"))
+					    {				            	 
+					    	int sizemateria = materias.length();
+					        //Log.d("Numero: ",(obj.length()+""));
+					        for (int i=0;i<sizemateria;i++) 
+					        {					 
+					        	JSONObject mat = materias.getJSONObject(i);
+							    String nom_mate = mat.getString("nombre_materia");							    
+							             						            
+							    JSONArray componentes = mat.getJSONArray("componetes");	
+							    //Log.d("Compo: ",componentes+"");
+							    /*if(componentes == null)
+							    {
+							    	 componentes = mat.getJSONArray("componetes");
+							    }*/
+							    
+							    
+							    String a="";
+					            for (int j=0;j<componentes.length();j++) 
+						        {
+					            	JSONObject comp = componentes.getJSONObject(j);
+					                String eva = comp.getString("desc");
+					                		 
+					                String peso = comp.getString("peso").toString();
+					                double peso1 = Double.parseDouble(peso);
+					                
+					                a = a + eva+"="+peso;
+					                
+					                double nota=0.0;
+					                
+					                myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+nom_mate+"','"+eva+"','"+peso1+"','"+nota+"');");
+						        }
+					            Log.d("Materia: ",nom_mate+": "+a);
+					            a="";
+					        }					             
+					    }
+					    else
+					    {			            	 
+					    	Toast.makeText(getBaseContext(),"No hay historial", Toast.LENGTH_LONG).show();
+					    }
+						 
+					 }
+					 catch (JSONException ex)
+					 {
+						 ex.printStackTrace();
+					 }
+				}
+			}
+								
+						
+			//NUEVO
+			private boolean isNetworkAvailable() 
+			{
+				ConnectivityManager manager = (ConnectivityManager) getBaseContext().getSystemService(mContext.CONNECTIVITY_SERVICE);
+				NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+				boolean isNetworkAvaible = false;
+				if (networkInfo != null && networkInfo.isConnected()) 
+				{
+					isNetworkAvaible = true;
+					Toast.makeText(getBaseContext(), "Con acceso a internet", Toast.LENGTH_SHORT).show();
+				} 
+				else
+				{
+					Toast.makeText(getBaseContext(), "Sin acceso a internet", Toast.LENGTH_SHORT).show();
+				}
+				return isNetworkAvaible;
+			}
+
 }

@@ -1,16 +1,45 @@
 package com.uninorte.promediocalculador;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,17 +56,22 @@ public class pantalla_inicio extends DialogFragment
 	 private String ca="",pa="",cc="";
 	 private View vi;
 	 Toast toast;
+	 
+	 
+	 
 	 @Override   
 	 public void onCreate(Bundle savedInstanceState) 
 	 {       
 		 super.onCreate(savedInstanceState);    
 		 setCancelable(false);
+		 
+		 
 	 }
 	
 	 @Override  
 	 public Dialog onCreateDialog(Bundle savedInstanceState) 
 	 { 
-		 vi = getActivity().getLayoutInflater().inflate(R.layout.pantalla_inicio, null); 
+		 vi = getActivity().getLayoutInflater().inflate(R.layout.pantalla_inicio, null); 		 
 		 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		 builder.setView(vi);
 		 builder.setTitle(R.string.bv);
@@ -98,6 +132,7 @@ public class pantalla_inicio extends DialogFragment
 		                       	 dismiss();
 		                       	 //recargar layout menuprincipal		                       
 		                       	((MainActivity)getActivity()).reloadFragment("inicio");
+		                       
 	                        }
 	                     }
 	                 });
@@ -168,4 +203,6 @@ public class pantalla_inicio extends DialogFragment
 		   	 
 			return go;
 		}
+
+		
 }

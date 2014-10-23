@@ -19,7 +19,7 @@
     <LinearLayout
         android:id="@+id/aa"
         android:layout_width="match_parent"
-        android:layout_height="73dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp" >
 
@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/crecursados"
+            android:layout_gravity="bottom"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -39,6 +40,7 @@
             android:ems="10"
             android:enabled="false"
             android:gravity="center"
+            android:textSize="27sp"
             android:inputType="number"
             android:textColor="#FFFFFF" >
 
@@ -49,8 +51,7 @@
     <LinearLayout
         android:id="@+id/aaa"
         android:layout_width="match_parent"
-        android:layout_height="86dp"
-        android:layout_gravity="bottom"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp" >
 
@@ -58,7 +59,8 @@
             android:id="@+id/textView3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_gravity="bottom"
+            android:layout_weight="0.86"
             android:text="@string/promactual"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -70,6 +72,7 @@
             android:ems="10"
             android:enabled="false"
             android:gravity="center"
+            android:textSize="27sp"
             android:inputType="numberDecimal"
             android:textColor="#FFFFFF" />
     </LinearLayout>
@@ -77,7 +80,7 @@
     <LinearLayout
         android:id="@+id/aaaa"
         android:layout_width="match_parent"
-        android:layout_height="69dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp" >
 
@@ -86,6 +89,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="bottom"
             android:text="@string/creditocursados"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -97,6 +101,7 @@
             android:ems="10"
             android:enabled="false"
             android:gravity="center"
+            android:textSize="27sp"
             android:inputType="number"
             android:textColor="#FFFFFF" >
 
@@ -116,6 +121,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="bottom"
             android:text="@string/promdeseado"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -126,6 +132,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:gravity="center"
+            android:textSize="23sp"
             android:inputType="numberDecimal"
             android:textColor="#FFFFFF" >
 
@@ -146,6 +153,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/n"
+            android:layout_gravity="bottom"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <EditText

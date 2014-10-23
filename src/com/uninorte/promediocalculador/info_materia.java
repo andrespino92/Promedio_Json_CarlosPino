@@ -111,9 +111,12 @@ public class info_materia extends Fragment
 		tabla = (TableLayout)rootView.findViewById(R.id.tabla);
 		cabecera = (TableLayout)rootView.findViewById(R.id.cabecera);
 		layFila = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT,1);
-		layEvaluacion = new TableRow.LayoutParams(200,100,1);
-		layPeso = new TableRow.LayoutParams(200,100,1);
-		layNota= new TableRow.LayoutParams(200,100,1);
+		layEvaluacion = new TableRow.LayoutParams(200,115,1);
+		layPeso = new TableRow.LayoutParams(200,115,1);
+		layNota= new TableRow.LayoutParams(200,115,1);
+		
+		tabla.removeAllViews();
+		cabecera.removeAllViews();
 		
 		ActualizarNotas();
 		AgregarCabecera();
@@ -122,13 +125,14 @@ public class info_materia extends Fragment
         {
 			tabla.removeAllViews();
     		cabecera.removeAllViews();
+    		AgregarFilasTabla();
+    		AgregarCabecera();
         	tabcontent.getTabWidget().getChildAt(1).setEnabled(true);
     		tabcontent.getTabWidget().getChildAt(2).setEnabled(true);
     		tabcontent.getTabWidget().getChildAt(0).setEnabled(false);
     		tabcontent.setCurrentTab(1);
     		
-    		AgregarFilasTabla();
-    		AgregarCabecera();
+    		
         }
 		else
 		{		
@@ -327,7 +331,7 @@ public class info_materia extends Fragment
 				        //creo la base de datos
 				        myDB = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
 				        //ahora creo una tabla
-				        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+				        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje VARCHAR,nota DECIMAL);");
 				        String[] campos = new String[] {"materia,evaluacion,nota"};
 				        String[] args = {id_materia};
 				        Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);
@@ -336,17 +340,18 @@ public class info_materia extends Fragment
 				        }
 				        else
 				        {
-					        while(c.moveToNext())
+				        	String nota = txtnota.getText().toString();
+					        /*while(c.moveToNext())
 					        {		
-							  	double nota = Double.parseDouble(txtnota.getText().toString());
+							  	
 							   	int col_mat = c.getColumnIndexOrThrow("materia");
 							   	String mat_dato = c.getString(col_mat);
 							   	int col_eval = c.getColumnIndexOrThrow("evaluacion");        		
 					        	String eval_dato = c.getString(col_eval);
 							   	if(mat_dato.toString().equals(id_materia) && eval_dato.toString().equals(eval_notas.getSelectedItem()))
-							   	{
+							   	{*/
 							   		ContentValues valores = new ContentValues();
-							   		valores.put("nota",nota);	        		   	        		  
+							   		valores.put("nota", nota);
 					        	    myDB.update(BD_TABLA_INFO, valores, "materia='"+id_materia+"' AND evaluacion='"+eval_notas.getSelectedItem()+"'", null);
 					        	    Toast.makeText(rootView.getContext(), "Nota Asignada a la Evaluación", Toast.LENGTH_SHORT).show();
 					        	    //reloadFragment("info_materia");
@@ -354,9 +359,9 @@ public class info_materia extends Fragment
 						    		cabecera.removeAllViews();
 						    		AgregarFilasTabla();
 						    		AgregarCabecera();					        	   
-					        	    myDB.close();
-							   	}			        	
-					        }			       				      
+					        	    //myDB.close();
+							   /*	}			        	
+					        }	*/		       				      
 				        }
 					}				
 					else
@@ -579,7 +584,7 @@ public class info_materia extends Fragment
         //creo la base de datos
         myDB = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
         //ahora creo una tabla
-        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje VARCHAR,nota DECIMAL);");
         String[] campos = new String[] {"materia,evaluacion"};
         String[] args = {getArguments().getString("mat")};
         Cursor c = myDB.query(BD_TABLA_INFO, campos, "materia=?", args, null, null, null);

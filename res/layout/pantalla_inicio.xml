@@ -73,17 +73,6 @@
             android:layout_weight="0.25"
             android:gravity="center"
             android:orientation="horizontal" >
-
-            <EditText
-                android:id="@+id/txt_creditos_cursados"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/cc"
-                android:inputType="number" >
-
-                <requestFocus />
-            </EditText>
         </LinearLayout>
 
         <LinearLayout

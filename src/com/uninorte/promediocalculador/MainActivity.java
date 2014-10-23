@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -66,9 +67,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     public String materia;
     
     protected static Context mContext;
-	protected String TAG = MainActivity.class.getSimpleName();
-    
-    
+	protected String TAG = MainActivity.class.getSimpleName();    	
     
 	
 
@@ -87,12 +86,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		//Toast.makeText(getBaseContext(), "OJJJJJOOOOOOOOOO", Toast.LENGTH_LONG).show();
 		
 		mContext = getBaseContext().getApplicationContext();
-		if (isNetworkAvailable()) 
-		{
-			//GetDataTask cd = new GetDataTask();
-       		CargarDatos cd = new CargarDatos();
-			cd.execute("http://augustodesarrollador.com/promedio_app/read.php");
-		}
+		
 		
 		//Inicializamos la base
         SQLiteDatabase myDB = null;
@@ -105,10 +99,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         //myDB.execSQL("DROP TABLE IF EXISTS "+BD_TABLA_PROMEDIO);
         if(c==null || c.getCount()==0)
         {
+        	
             //Toast.makeText(getBaseContext(), "No hay nada en la bases datos", Toast.LENGTH_LONG).show();
             FragmentManager fm = MainActivity.this.getSupportFragmentManager();// getActivity().getSupportFragmentManager(); 
 	    	pantalla_inicio inicio = new pantalla_inicio();                
-	    	inicio.show(fm, "pantalla_inicio");	    	
+	    	inicio.show(fm, "pantalla_inicio");	 	    		    
         }
 	}
 
@@ -187,7 +182,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	        myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
 	        
 	        myDB1 = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
-	        myDB1.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje INTEGER,nota DECIMAL);");
+	        myDB1.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje VARCHAR,nota DECIMAL);");
 	        
 	        myDB2 = getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
 	        myDB2.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_PROMEDIO + " (ca DECIMAL, pa DECIMAL,cc DECIMAL);");
@@ -313,127 +308,5 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     	ft.commit();
 	}
 
-	//OTOR
-			public class CargarDatos extends AsyncTask<String, Void, String>
-			{
-		        /*Atributos para petición http*/
-		        private HttpClient httpclient;
-		        private HttpPost httppost;
-		        private HttpResponse response;
-		        private JSONObject obj=null,obj1=null;
-				@Override
-				protected String doInBackground(String... parameters) 
-				{
-					StringBuilder answer = new StringBuilder();
-					try
-					{
-						InputStream is;
-						String line ="";
-						BufferedReader rd;
-							httpclient = new DefaultHttpClient();
-			                httppost = new HttpPost(parameters[0]);
-			                response = httpclient.execute(httppost);
-			                is = response.getEntity().getContent();		                
-			                rd = new BufferedReader(new InputStreamReader(is));
-			                while((line = rd.readLine())!=null){
-			                    answer.append(line);
-			                }
-		            }catch (ClientProtocolException ex){
-		                ex.printStackTrace();
-		            }catch (IOException ex){
-		                ex.printStackTrace();
-		            }
-					//Log.d("Respuesta",answer.toString());
-					return answer.toString();
-					
-				}
-				@Override
-				protected void onPostExecute(String data)
-				{					
-					 try
-					 {
-						//Inicializamos la base
-					    SQLiteDatabase myDB = null;
-					    //creo la base de datos
-					    myDB =getBaseContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
-					    //ahora creo una tabla
-					    myDB.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA_INFO + " (materia VARCHAR, evaluacion VARCHAR,porcentaje DOUBLE,nota DECIMAL);");
-							
-						 
-						String status="";
-								
-						obj = new JSONObject(data);
-				        status = obj.getString("status");
-				        JSONArray materias = obj.getJSONArray("materias");
-				                
-				        //Log.d("Status: ",status.toString());
-				        
-					    if(status.equals("ok"))
-					    {				            	 
-					    	int sizemateria = materias.length();
-					        //Log.d("Numero: ",(obj.length()+""));
-					        for (int i=0;i<sizemateria;i++) 
-					        {					 
-					        	JSONObject mat = materias.getJSONObject(i);
-							    String nom_mate = mat.getString("nombre_materia");							    
-							             						            
-							    JSONArray componentes = mat.getJSONArray("componetes");	
-							    //Log.d("Compo: ",componentes+"");
-							    /*if(componentes == null)
-							    {
-							    	 componentes = mat.getJSONArray("componetes");
-							    }*/
-							    
-							    
-							    String a="";
-					            for (int j=0;j<componentes.length();j++) 
-						        {
-					            	JSONObject comp = componentes.getJSONObject(j);
-					                String eva = comp.getString("desc");
-					                		 
-					                String peso = comp.getString("peso").toString();
-					                double peso1 = Double.parseDouble(peso);
-					                
-					                a = a + eva+"="+peso;
-					                
-					                double nota=0.0;
-					                
-					                myDB.execSQL("INSERT INTO "+ BD_TABLA_INFO + " (materia,evaluacion,porcentaje,nota)"+ " VALUES ('"+nom_mate+"','"+eva+"','"+peso1+"','"+nota+"');");
-						        }
-					            Log.d("Materia: ",nom_mate+": "+a);
-					            a="";
-					        }					             
-					    }
-					    else
-					    {			            	 
-					    	Toast.makeText(getBaseContext(),"No hay historial", Toast.LENGTH_LONG).show();
-					    }
-						 
-					 }
-					 catch (JSONException ex)
-					 {
-						 ex.printStackTrace();
-					 }
-				}
-			}
-								
-						
-			//NUEVO
-			private boolean isNetworkAvailable() 
-			{
-				ConnectivityManager manager = (ConnectivityManager) getBaseContext().getSystemService(mContext.CONNECTIVITY_SERVICE);
-				NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-				boolean isNetworkAvaible = false;
-				if (networkInfo != null && networkInfo.isConnected()) 
-				{
-					isNetworkAvaible = true;
-					Toast.makeText(getBaseContext(), "Con acceso a internet", Toast.LENGTH_SHORT).show();
-				} 
-				else
-				{
-					Toast.makeText(getBaseContext(), "Sin acceso a internet", Toast.LENGTH_SHORT).show();
-				}
-				return isNetworkAvaible;
-			}
-
+	
 }

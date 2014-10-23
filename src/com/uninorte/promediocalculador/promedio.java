@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ public class promedio extends Fragment
 	pantalla_inicio pantalla_ini;
 	private final String BD_NOMBRE = "BaseDatosPrueba";
     private final String BD_TABLA_PROMEDIO = "promedio";
+    private final String BD_TABLA  = "materias";
 	View rootView;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
@@ -60,14 +62,32 @@ public class promedio extends Fragment
     		   	
     		   	int p_a = c.getColumnIndexOrThrow("pa");
     		   	Double pa = c.getDouble(p_a);
-    		   	txtpromactual.setText(pa+"");
-    		   	
-    		   	int c_c = c.getColumnIndexOrThrow("cc");
-    		   	Double cc = c.getDouble(c_c);
-    			txtcredcursados.setText(cc+"");
+    		   	txtpromactual.setText(pa+"");    		   
             }
-        }			
-		
+        }
+        
+      //Inicializamos la base
+	    SQLiteDatabase myDB1 = null;
+        //creo la base de datos
+        myDB1 = rootView.getContext().openOrCreateDatabase(BD_NOMBRE, 1, null);
+        //ahora creo una tabla
+        myDB1.execSQL("CREATE TABLE IF NOT EXISTS "+ BD_TABLA + " (materia VARCHAR, creditos INTEGER);");
+        Cursor c1 = myDB1.query(true,BD_TABLA,null,null,null, null, null, null,null);        
+        if(c1==null || c1.getCount()==0)
+        {
+        }
+        else
+        {
+        	int cont=0;          
+            while(c1.moveToNext())
+            {
+            	int cre = c1.getColumnIndexOrThrow("creditos");
+	            int cre1 = c1.getInt(cre);
+	            cont=cont+cre1;
+            }
+            txtcredcursados.setText(cont+"");
+        }
+        
 		calcularpromedio = (Button)rootView.findViewById(R.id.calcularpromedio);
 		calcularpromedio.setOnClickListener(new OnClickListener() 
 		{
@@ -76,21 +96,28 @@ public class promedio extends Fragment
 			{			
 				if(!txtpromdeseado.getText().toString().equals("") )
 				{
-					double resul=0.0;
-					double c_aprobado = Double.parseDouble(txtcreditosaprobados.getText().toString());
-					double p_actual = Double.parseDouble(txtpromactual.getText().toString());
-					double c_cursados = Double.parseDouble(txtcredcursados.getText().toString());
 					double p_deseado = Double.parseDouble(txtpromdeseado.getText().toString());
-					
-					resul = ((p_deseado*(c_aprobado+c_cursados))-(p_actual*c_aprobado))/(c_cursados);
-					
-					DecimalFormat df = new DecimalFormat("0.00");					
-					
-					txtpromediototal.setText(df.format(resul));
+					if(p_deseado >=0.0 && p_deseado<=5.0)
+					{
+						double resul=0.0;
+						double c_aprobado = Double.parseDouble(txtcreditosaprobados.getText().toString());
+						double p_actual = Double.parseDouble(txtpromactual.getText().toString());
+						double c_cursados = Double.parseDouble(txtcredcursados.getText().toString());
+												
+						resul = ((p_deseado*(c_aprobado+c_cursados))-(p_actual*c_aprobado))/(c_cursados);
+						
+						DecimalFormat df = new DecimalFormat("0.00");					
+						
+						txtpromediototal.setText(df.format(resul));
+					}
+					else
+					{
+						txtpromdeseado.setError("Rango de promedio [0 - 5]");
+					}
 				}
 				else
 				{
-					Toast.makeText(rootView.getContext(), "Llene Todos los Campos", Toast.LENGTH_LONG).show();
+					//Toast.makeText(rootView.getContext(), "Llene Todos los Campos", Toast.LENGTH_LONG).show();
 					txtpromdeseado.setError("¿Cual es tu promedio deseado?");
 				}
 			}
